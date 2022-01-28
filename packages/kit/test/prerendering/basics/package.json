@@ -10,8 +10,8 @@
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "workspace:*",
-		"svelte": "^3.43.0",
-		"uvu": "^0.5.2"
+		"svelte": "^3.46.3",
+		"uvu": "^0.5.3"
 	},
 	"type": "module"
 }

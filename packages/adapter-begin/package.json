@@ -24,8 +24,8 @@
 	],
 	"devDependencies": {
 		"@sveltejs/kit": "workspace:*",
-		"rollup": "^2.58.0",
-		"sirv": "^2.0.0"
+		"rollup": "^2.66.1",
+		"sirv": "^2.0.2"
 	},
 	"exports": {
 		".": {
