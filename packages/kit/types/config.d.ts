@@ -118,6 +118,10 @@ export interface Config {
 		adapter?: Adapter;
 		amp?: boolean;
 		appDir?: string;
+		browser?: {
+			hydrate?: boolean;
+			router?: boolean;
+		};
 		csp?: {
 			mode?: 'hash' | 'nonce' | 'auto';
 			directives?: CspDirectives;
@@ -131,7 +135,6 @@ export interface Config {
 			template?: string;
 		};
 		floc?: boolean;
-		hydrate?: boolean;
 		inlineStyleThreshold?: number;
 		methodOverride?: {
 			parameter?: string;
@@ -150,11 +153,12 @@ export interface Config {
 		prerender?: {
 			concurrency?: number;
 			crawl?: boolean;
+			createIndexFiles?: boolean;
 			enabled?: boolean;
 			entries?: string[];
 			onError?: PrerenderOnErrorValue;
 		};
-		router?: boolean;
+		routes?: (filepath: string) => boolean;
 		serviceWorker?: {
 			register?: boolean;
 			files?: (filepath: string) => boolean;
