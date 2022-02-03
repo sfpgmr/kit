@@ -2,5 +2,5 @@ git fetch upstream
 git checkout master
 git merge upsream/master
 git checkout sfpgmr
-git merge master
+git merge upstream/master
 
