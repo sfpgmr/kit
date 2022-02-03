@@ -22,25 +22,27 @@ If unimplemented, defaults to `({ event, resolve }) => resolve(event)`.
 // everything else must be a type of string
 type ResponseHeaders = Record<string, string | string[]>;
 
-export interface RequestEvent<Locals = Record<string, any>, Platform = Record<string, any>> {
+export interface RequestEvent {
 	request: Request;
 	url: URL;
 	params: Record<string, string>;
-	locals: Locals;
-	platform: Platform;
+	locals: App.Locals;
+	platform: App.Platform;
 }
 
 export interface ResolveOpts {
 	ssr?: boolean;
 }
 
-export interface Handle<Locals = Record<string, any>, Platform = Record<string, any>> {
+export interface Handle {
 	(input: {
-		event: RequestEvent<Locals, Platform>;
-		resolve(event: RequestEvent<Locals, Platform>, opts?: ResolveOpts): MaybePromise<Response>;
+		event: RequestEvent;
+		resolve(event: RequestEvent, opts?: ResolveOpts): MaybePromise<Response>;
 	}): MaybePromise<Response>;
 }
 ```
+
+> See the [TypeScript](#typescript) section for information on `App.Locals` and `App.Platform`.
 
 To add custom data to the request, which is passed to endpoints, populate the `event.locals` object, as shown below.
 
@@ -77,7 +79,7 @@ export async function handle({ event, resolve }) {
 
 ### handleError
 
-If an error is thrown during rendering, this function will be called with the `error` and the `request` that caused it. This allows you to send data to an error tracking service, or to customise the formatting before printing the error to the console.
+If an error is thrown during rendering, this function will be called with the `error` and the `event` that caused it. This allows you to send data to an error tracking service, or to customise the formatting before printing the error to the console.
 
 During development, if an error occurs because of a syntax error in your Svelte code, a `frame` property will be appended highlighting the location of the error.
 
@@ -85,8 +87,8 @@ If unimplemented, SvelteKit will log the error with default formatting.
 
 ```ts
 // Declaration types for handleError hook
-export interface HandleError<Locals = Record<string, any>, Platform = Record<string, any>> {
-	(input: { error: Error & { frame?: string }; event: RequestEvent<Locals, Platform> }): void;
+export interface HandleError {
+	(input: { error: Error & { frame?: string }; event: RequestEvent }): void;
 }
 ```
 
@@ -108,12 +110,8 @@ If unimplemented, session is `{}`.
 
 ```ts
 // Declaration types for getSession hook
-export interface GetSession<
-	Locals = Record<string, any>,
-	Platform = Record<string, any>,
-	Session = any
-> {
-	(event: RequestEvent<Locals, Platform>): MaybePromise<Session>;
+export interface GetSession {
+	(event: RequestEvent): MaybePromise<App.Session>;
 }
 ```
 
@@ -130,7 +128,7 @@ export function getSession(event) {
 					email: event.locals.user.email,
 					avatar: event.locals.user.avatar
 				}
-			}
+		  }
 		: {};
 }
 ```

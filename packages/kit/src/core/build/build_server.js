@@ -89,7 +89,6 @@ export class App {
 			root,
 			service_worker: ${has_service_worker ? "base + '/service-worker.js'" : 'null'},
 			router: ${s(config.kit.browser.router)},
-			target: ${s(config.kit.target)},
 			template,
 			template_contains_nonce: ${template.includes('%svelte.nonce%')},
 			trailing_slash: ${s(config.kit.trailingSlash)}
@@ -181,7 +180,7 @@ export async function build_server(
 	);
 
 	/** @type {import('vite').UserConfig} */
-	const vite_config = config.kit.vite();
+	const vite_config = await config.kit.vite();
 
 	const default_config = {
 		build: {

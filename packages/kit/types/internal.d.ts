@@ -119,7 +119,7 @@ export interface SSRNode {
 	styles?: Record<string, string>;
 }
 
-export interface SSRRenderOptions {
+export interface SSROptions {
 	amp: boolean;
 	csp: ValidatedConfig['kit']['csp'];
 	dev: boolean;
@@ -140,7 +140,6 @@ export interface SSRRenderOptions {
 	root: SSRComponent['default'];
 	router: boolean;
 	service_worker?: string;
-	target: string;
 	template({
 		head,
 		body,
@@ -156,7 +155,7 @@ export interface SSRRenderOptions {
 	trailing_slash: TrailingSlash;
 }
 
-export interface SSRRenderState {
+export interface SSRState {
 	fetched?: string;
 	initiator?: SSRPage | null;
 	platform?: any;
@@ -248,5 +247,5 @@ export interface MethodOverride {
 }
 
 export interface Respond {
-	(request: Request, options: SSRRenderOptions, state?: SSRRenderState): Promise<Response>;
+	(request: Request, options: SSROptions, state?: SSRState): Promise<Response>;
 }

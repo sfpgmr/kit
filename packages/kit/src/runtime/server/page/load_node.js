@@ -8,8 +8,8 @@ import { create_prerendering_url_proxy } from './utils.js';
 /**
  * @param {{
  *   event: import('types/hooks').RequestEvent;
- *   options: import('types/internal').SSRRenderOptions;
- *   state: import('types/internal').SSRRenderState;
+ *   options: import('types/internal').SSROptions;
+ *   state: import('types/internal').SSRState;
  *   route: import('types/internal').SSRPage | null;
  *   url: URL;
  *   params: Record<string, string>;
@@ -93,6 +93,21 @@ export async function load_node({
 				}
 
 				opts.headers = new Headers(opts.headers);
+
+				// merge headers from request
+				for (const [key, value] of event.request.headers) {
+					if (
+						key !== 'authorization' &&
+						key !== 'cookie' &&
+						key !== 'host' &&
+						key !== 'if-none-match' &&
+						!opts.headers.has(key)
+					) {
+						opts.headers.set(key, value);
+					}
+				}
+
+				opts.headers.set('referer', event.url.href);
 
 				const resolved = resolve(event.url.pathname, requested.split('?')[0]);
 
@@ -209,10 +224,10 @@ export async function load_node({
 							if (!opts.body || typeof opts.body === 'string') {
 								// prettier-ignore
 								fetched.push({
-										url: requested,
-										body: /** @type {string} */ (opts.body),
-										json: `{"status":${response.status},"statusText":${s(response.statusText)},"headers":${s(headers)},"body":"${escape_json_string_in_html(body)}"}`
-									});
+									url: requested,
+									body: /** @type {string} */ (opts.body),
+									json: `{"status":${response.status},"statusText":${s(response.statusText)},"headers":${s(headers)},"body":"${escape_json_string_in_html(body)}"}`
+								});
 							}
 
 							if (dependency) {
