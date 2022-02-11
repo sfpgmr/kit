@@ -11,15 +11,9 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "workspace:*",
 		"@sveltejs/kit": "workspace:*",
-<<<<<<< HEAD
-		"svelte": "^3.46.3",
-		"svelte-preprocess": "^4.10.2",
-		"typescript": "^4.5.5"
-=======
 		"svelte": "^3.44.0",
 		"svelte-preprocess": "^4.9.8",
 		"typescript": "~4.5.5"
->>>>>>> upstream/master
 	},
 	"type": "module",
 	"dependencies": {
