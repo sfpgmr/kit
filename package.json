@@ -23,24 +23,15 @@
 	},
 	"homepage": "https://github.com/sveltejs/kit#readme",
 	"devDependencies": {
-<<<<<<< HEAD
 		"@changesets/cli": "^2.20.0",
 		"@changesets/get-github-info": "^0.5.0",
-=======
-		"@changesets/cli": "^2.18.1",
->>>>>>> upstream/master
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@rollup/plugin-json": "^4.1.0",
 		"@rollup/plugin-node-resolve": "^13.1.3",
 		"@sveltejs/eslint-config": "github:sveltejs/eslint-config#v5.8.0",
-<<<<<<< HEAD
 		"@typescript-eslint/eslint-plugin": "^5.10.1",
 		"@typescript-eslint/parser": "^5.10.1",
-=======
 		"@svitejs/changesets-changelog-github-compact": "^0.1.1",
-		"@typescript-eslint/eslint-plugin": "^5.5.0",
-		"@typescript-eslint/parser": "^5.5.0",
->>>>>>> upstream/master
 		"action-deploy-docs": "github:sveltejs/action-deploy-docs#main",
 		"eslint": "^8.3.0",
 		"eslint-plugin-import": "^2.25.3",
