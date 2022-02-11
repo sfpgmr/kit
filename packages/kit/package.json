@@ -1,6 +1,6 @@
 {
 	"name": "@sveltejs/kit",
-	"version": "1.0.0-next.260",
+	"version": "1.0.0-next.265",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
@@ -10,6 +10,7 @@
 	"homepage": "https://kit.svelte.dev",
 	"type": "module",
 	"dependencies": {
+<<<<<<< HEAD
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@rollup/plugin-node-resolve": "^13.1.3",
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.36",
@@ -18,6 +19,11 @@
 		"formdata-polyfill": "^4.0.10",
 		"sade": "^1.8.1",
 		"vite": "^2.7.13"
+=======
+		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.32",
+		"sade": "^1.7.4",
+		"vite": "^2.8.0"
+>>>>>>> upstream/master
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.18.1",
@@ -71,8 +77,9 @@
 		"prepublishOnly": "npm run build",
 		"test": "npm run test:unit && npm run test:packaging && npm run test:prerendering && npm run test:integration",
 		"test:unit": "uvu src \"(spec\\.js|test[\\\\/]index\\.js)\" -i packaging",
-		"test:prerendering": "pnpm test:prerendering:basics",
+		"test:prerendering": "pnpm test:prerendering:basics && pnpm test:prerendering:options",
 		"test:prerendering:basics": "cd test/prerendering/basics && pnpm test",
+		"test:prerendering:options": "cd test/prerendering/options && pnpm test",
 		"test:packaging": "uvu src/packaging \"(spec\\.js|test[\\\\/]index\\.js)\"",
 		"test:integration": "pnpm test:integration:amp && pnpm test:integration:basics && pnpm test:integration:options && pnpm test:integration:options-2",
 		"test:integration:amp": "cd test/apps/amp && pnpm test",
