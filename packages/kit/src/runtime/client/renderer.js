@@ -195,11 +195,12 @@ export class Renderer {
 	 *   status: number;
 	 *   error: Error;
 	 *   nodes: Array<Promise<CSRComponent>>;
-	 *   url: URL;
 	 *   params: Record<string, string>;
 	 * }} selected
 	 */
-	async start({ status, error, nodes, url, params }) {
+	async start({ status, error, nodes, params }) {
+		const url = new URL(location.href);
+
 		/** @type {Array<import('./types').BranchNode | undefined>} */
 		const branch = [];
 
@@ -210,9 +211,6 @@ export class Renderer {
 		let result;
 
 		let error_args;
-
-		// url.hash is empty when coming from the server
-		url.hash = window.location.hash;
 
 		try {
 			for (let i = 0; i < nodes.length; i += 1) {
@@ -754,10 +752,10 @@ export class Renderer {
 
 					if (has_shadow && i === a.length - 1) {
 						const res = await fetch(
-							`${url.pathname}${url.pathname.endsWith('/') ? '' : '/'}__data.json`,
+							`${url.pathname}${url.pathname.endsWith('/') ? '' : '/'}__data.json${url.search}`,
 							{
 								headers: {
-									'x-sveltekit-noredirect': 'true'
+									'x-sveltekit-load': 'true'
 								}
 							}
 						);
