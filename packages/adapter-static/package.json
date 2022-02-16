@@ -29,12 +29,8 @@
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "workspace:*",
-<<<<<<< HEAD
-		"playwright-chromium": "^1.18.1",
-=======
 		"devalue": "^2.0.1",
-		"playwright-chromium": "^1.17.0",
->>>>>>> upstream/master
+		"playwright-chromium": "^1.18.1",
 		"port-authority": "^1.1.2",
 		"sirv": "^2.0.2",
 		"svelte": "^3.46.3",
