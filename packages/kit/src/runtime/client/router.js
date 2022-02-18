@@ -2,6 +2,21 @@ import { onMount } from 'svelte';
 import { normalize_path } from '../../utils/url';
 import { get_base_uri } from './utils';
 
+// We track the scroll position associated with each history entry in sessionStorage,
+// rather than on history.state itself, because when navigation is driven by
+// popstate it's too late to update the scroll position associated with the
+// state we're navigating from
+const SCROLL_KEY = 'sveltekit:scroll';
+
+/** @typedef {{ x: number, y: number }} ScrollPosition */
+/** @type {Record<number, ScrollPosition>} */
+let scroll_positions = {};
+try {
+	scroll_positions = JSON.parse(sessionStorage[SCROLL_KEY]);
+} catch {
+	// do nothing
+}
+
 function scroll_state() {
 	return {
 		x: pageXOffset,
@@ -51,6 +66,7 @@ export class Router {
 		renderer.router = this;
 
 		this.enabled = true;
+		this.initialized = false;
 
 		// make it possible to reset focus
 		document.body.setAttribute('tabindex', '-1');
@@ -62,6 +78,11 @@ export class Router {
 			// create initial history entry, so we can return here
 			history.replaceState({ ...history.state, 'sveltekit:index': 0 }, '', location.href);
 		}
+
+		// if we reload the page, or Cmd-Shift-T back to it,
+		// recover scroll position
+		const scroll = scroll_positions[this.current_history_index];
+		if (scroll) scrollTo(scroll.x, scroll.y);
 
 		this.hash_navigating = false;
 
@@ -75,9 +96,7 @@ export class Router {
 	}
 
 	init_listeners() {
-		if ('scrollRestoration' in history) {
-			history.scrollRestoration = 'manual';
-		}
+		history.scrollRestoration = 'manual';
 
 		// Adopted from Nuxt.js
 		// Reset scrollRestoration to auto when leaving page, allowing page reload
@@ -102,28 +121,16 @@ export class Router {
 			}
 		});
 
-		// Setting scrollRestoration to manual again when returning to this page.
-		addEventListener('load', () => {
-			history.scrollRestoration = 'manual';
-		});
+		addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'hidden') {
+				this.#update_scroll_positions();
 
-		// There's no API to capture the scroll location right before the user
-		// hits the back/forward button, so we listen for scroll events
-
-		/** @type {NodeJS.Timeout} */
-		let scroll_timer;
-		addEventListener('scroll', () => {
-			clearTimeout(scroll_timer);
-			scroll_timer = setTimeout(() => {
-				// Store the scroll location in the history
-				// This will persist even if we navigate away from the site and come back
-				const new_state = {
-					...(history.state || {}),
-					'sveltekit:scroll': scroll_state()
-				};
-				history.replaceState(new_state, document.title, window.location.href);
-				// iOS scroll event intervals happen between 30-150ms, sometimes around 200ms
-			}, 200);
+				try {
+					sessionStorage[SCROLL_KEY] = JSON.stringify(scroll_positions);
+				} catch {
+					// do nothing
+				}
+			}
 		});
 
 		/** @param {Event} event */
@@ -196,10 +203,9 @@ export class Router {
 				// clicking a hash link and those triggered by popstate
 				this.hash_navigating = true;
 
-				const info = this.parse(url);
-				if (info) {
-					return this.renderer.update(info, [], false);
-				}
+				this.#update_scroll_positions();
+				this.renderer.update_page_store(new URL(url.href));
+
 				return;
 			}
 
@@ -225,7 +231,7 @@ export class Router {
 
 				this._navigate({
 					url: new URL(location.href),
-					scroll: event.state['sveltekit:scroll'],
+					scroll: scroll_positions[event.state['sveltekit:index']],
 					keepfocus: false,
 					chain: [],
 					details: null,
@@ -252,6 +258,12 @@ export class Router {
 				);
 			}
 		});
+
+		this.initialized = true;
+	}
+
+	#update_scroll_positions() {
+		scroll_positions[this.current_history_index] = scroll_state();
 	}
 
 	/**
@@ -274,7 +286,8 @@ export class Router {
 				id: url.pathname + url.search,
 				routes: this.routes.filter(([pattern]) => pattern.test(path)),
 				url,
-				path
+				path,
+				initial: !this.initialized
 			};
 		}
 	}
@@ -324,7 +337,7 @@ export class Router {
 
 	/**
 	 * @param {URL} url
-	 * @returns {Promise<import('./types').NavigationResult>}
+	 * @returns {Promise<import('./types').NavigationResult | undefined>}
 	 */
 	async prefetch(url) {
 		const info = this.parse(url);
@@ -400,6 +413,8 @@ export class Router {
 				// never resolves
 			});
 		}
+
+		this.#update_scroll_positions();
 
 		accepted();
 

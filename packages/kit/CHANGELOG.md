@@ -1,5 +1,31 @@
 # @sveltejs/kit
 
+## 1.0.0-next.278
+
+### Patch Changes
+
+- [breaking] Crawl rel="external" links when prerendering ([#3826](https://github.com/sveltejs/kit/pull/3826))
+
+## 1.0.0-next.277
+
+### Patch Changes
+
+- Fall back to full page reload if link href does not match route manifest ([#3969](https://github.com/sveltejs/kit/pull/3969))
+
+* Update page store without rerunning load when hash changes ([#3975](https://github.com/sveltejs/kit/pull/3975))
+
+## 1.0.0-next.276
+
+### Patch Changes
+
+- Track scroll position without scroll listener, and recover on reload ([#3938](https://github.com/sveltejs/kit/pull/3938))
+
+## 1.0.0-next.275
+
+### Patch Changes
+
+- Invalidate shadow endpoint data when URL changes ([#3925](https://github.com/sveltejs/kit/pull/3925))
+
 ## 1.0.0-next.274
 
 ### Patch Changes

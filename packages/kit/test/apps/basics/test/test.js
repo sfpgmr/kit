@@ -253,6 +253,19 @@ test.describe('Scrolling', () => {
 		expect(await in_view('#input')).toBe(true);
 		expect(await page.locator('#input')).toBeFocused();
 	});
+
+	test('scroll positions are recovered on reloading the page', async ({ page, back, app }) => {
+		await page.goto('/anchor');
+		await page.evaluate(() => window.scrollTo(0, 1000));
+		await app.goto('/anchor/anchor');
+		await page.evaluate(() => window.scrollTo(0, 1000));
+
+		await page.reload();
+		expect(await page.evaluate(() => window.scrollY)).toBe(1000);
+
+		await back();
+		expect(await page.evaluate(() => window.scrollY)).toBe(1000);
+	});
 });
 
 test.describe.parallel('Imports', () => {
@@ -472,6 +485,20 @@ test.describe.parallel('Shadowed pages', () => {
 		await page.goto('/shadowed');
 		await clicknav('[href="/shadowed/no-get"]');
 		expect(await page.textContent('h1')).toBe('hello');
+	});
+
+	test('Invalidates shadow data when URL changes', async ({ page, clicknav }) => {
+		await page.goto('/shadowed');
+		await clicknav('[href="/shadowed/dynamic/foo"]');
+		expect(await page.textContent('h1')).toBe('slug: foo');
+
+		await clicknav('[href="/shadowed/dynamic/bar"]');
+		expect(await page.textContent('h1')).toBe('slug: bar');
+
+		await page.goto('/shadowed/dynamic/foo');
+		expect(await page.textContent('h1')).toBe('slug: foo');
+		await clicknav('[href="/shadowed/dynamic/bar"]');
+		expect(await page.textContent('h1')).toBe('slug: bar');
 	});
 });
 
@@ -2084,6 +2111,15 @@ test.describe.parallel('Routing', () => {
 	test('allows rest routes to have prefixes and suffixes', async ({ page }) => {
 		await page.goto('/routing/rest/complex/prefix-one/two/three');
 		expect(await page.textContent('h1')).toBe('parts: one/two/three');
+	});
+
+	test('links to unmatched routes result in a full page navigation, not a 404', async ({
+		page,
+		clicknav
+	}) => {
+		await page.goto('/routing');
+		await clicknav('[href="/static.json"]');
+		expect(await page.textContent('body')).toBe('"static file"\n');
 	});
 });
 
