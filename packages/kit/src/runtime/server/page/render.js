@@ -25,7 +25,7 @@ const updated = {
  *   error?: Error;
  *   url: URL;
  *   params: Record<string, string>;
- *   ssr: boolean;
+ *   resolve_opts: import('types/hooks').RequiredResolveOptions;
  *   stuff: Record<string, any>;
  * }} opts
  */
@@ -39,7 +39,7 @@ export async function render_response({
 	error,
 	url,
 	params,
-	ssr,
+	resolve_opts,
 	stuff
 }) {
 	if (state.prerender) {
@@ -71,7 +71,7 @@ export async function render_response({
 		error.stack = options.get_stack(error);
 	}
 
-	if (ssr) {
+	if (resolve_opts.ssr) {
 		branch.forEach(({ node, props, loaded, fetched, uses_credentials }) => {
 			if (node.css) node.css.forEach((url) => stylesheets.add(url));
 			if (node.js) node.js.forEach((url) => modulepreloads.add(url));
@@ -167,9 +167,9 @@ export async function render_response({
 				throw new Error(`Failed to serialize session data: ${error.message}`);
 			})},
 			route: ${!!page_config.router},
-			spa: ${!ssr},
+			spa: ${!resolve_opts.ssr},
 			trailing_slash: ${s(options.trailing_slash)},
-			hydrate: ${ssr && page_config.hydrate ? `{
+			hydrate: ${resolve_opts.ssr && page_config.hydrate ? `{
 				status: ${status},
 				error: ${serialize_error(error)},
 				nodes: [
@@ -177,7 +177,6 @@ export async function render_response({
 					.map(({ node }) => `import(${s(options.prefix + node.entry)})`)
 					.join(',\n\t\t\t\t\t\t')}
 				],
-				url: new URL(${s(url.href)}),
 				params: ${devalue(params)}
 			}` : 'null'}
 		});
@@ -190,12 +189,15 @@ export async function render_response({
 	`;
 
 	if (options.amp) {
+		// inline_style contains CSS files (i.e. `import './styles.css'`)
+		// rendered.css contains the CSS from `<style>` tags in Svelte components
+		const styles = `${inlined_style}\n${rendered.css.code}`;
 		head += `
 		<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
 		<noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
 		<script async src="https://cdn.ampproject.org/v0.js"></script>
 
-		<style amp-custom>${inlined_style}\n${rendered.css.code}</style>`;
+		<style amp-custom>${styles}</style>`;
 
 		if (options.service_worker) {
 			head +=
@@ -227,6 +229,8 @@ export async function render_response({
 				}
 
 				if (styles.has(dep)) {
+					// don't load stylesheets that are already inlined
+					// include them in disabled state so that Vite can detect them and doesn't try to add them
 					attributes.push('disabled', 'media="(max-width: 0)"');
 				}
 
@@ -261,7 +265,7 @@ export async function render_response({
 
 			if (shadow_props) {
 				// prettier-ignore
-				body += `<script type="application/json" data-type="svelte-props">${escape_json_in_html(s(shadow_props))}</script>`;
+				body += `<script type="application/json" data-type="svelte-props">${escape_json_in_html(shadow_props)}</script>`;
 			}
 		}
 
@@ -295,7 +299,9 @@ export async function render_response({
 	const assets =
 		options.paths.assets || (segments.length > 0 ? segments.map(() => '..').join('/') : '.');
 
-	const html = options.template({ head, body, assets, nonce: /** @type {string} */ (csp.nonce) });
+	const html = resolve_opts.transformPage({
+		html: options.template({ head, body, assets, nonce: /** @type {string} */ (csp.nonce) })
+	});
 
 	const headers = new Headers({
 		'content-type': 'text/html',

@@ -63,7 +63,7 @@ const config = {
 		routes: (filepath) => !/(?:(?:^_|\/_)|(?:^\.|\/\.)(?!well-known))/.test(filepath),
 		serviceWorker: {
 			register: true,
-			files: (filepath) => !/\.DS_STORE/.test(filepath)
+			files: (filepath) => !/\.DS_Store/.test(filepath)
 		},
 		trailingSlash: 'never',
 		version: {
@@ -89,7 +89,7 @@ Required when running `svelte-kit build` and determines how the output is conver
 
 ### amp
 
-Enable [AMP](/docs/amp) mode.
+Enable [AMP](/docs/seo#amp) mode.
 
 ### appDir
 

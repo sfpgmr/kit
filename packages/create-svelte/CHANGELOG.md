@@ -1,5 +1,23 @@
 # create-svelte
 
+## 2.0.0-next.118
+
+### Patch Changes
+
+- make demo app work without JS ([#3970](https://github.com/sveltejs/kit/pull/3970))
+
+## 2.0.0-next.117
+
+### Patch Changes
+
+- update comment to remove outdated reference ([#3898](https://github.com/sveltejs/kit/pull/3898))
+
+## 2.0.0-next.116
+
+### Patch Changes
+
+- use preserveValueImports flag ([#3064](https://github.com/sveltejs/kit/pull/3064))
+
 ## 2.0.0-next.115
 
 ### Patch Changes

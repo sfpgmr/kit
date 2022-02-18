@@ -1,5 +1,21 @@
 import { onMount } from 'svelte';
+import { normalize_path } from '../../utils/url';
 import { get_base_uri } from './utils';
+
+// We track the scroll position associated with each history entry in sessionStorage,
+// rather than on history.state itself, because when navigation is driven by
+// popstate it's too late to update the scroll position associated with the
+// state we're navigating from
+const SCROLL_KEY = 'sveltekit:scroll';
+
+/** @typedef {{ x: number, y: number }} ScrollPosition */
+/** @type {Record<number, ScrollPosition>} */
+let scroll_positions = {};
+try {
+	scroll_positions = JSON.parse(sessionStorage[SCROLL_KEY]);
+} catch {
+	// do nothing
+}
 
 function scroll_state() {
 	return {
@@ -50,6 +66,7 @@ export class Router {
 		renderer.router = this;
 
 		this.enabled = true;
+		this.initialized = false;
 
 		// make it possible to reset focus
 		document.body.setAttribute('tabindex', '-1');
@@ -62,6 +79,13 @@ export class Router {
 			history.replaceState({ ...history.state, 'sveltekit:index': 0 }, '', location.href);
 		}
 
+		// if we reload the page, or Cmd-Shift-T back to it,
+		// recover scroll position
+		const scroll = scroll_positions[this.current_history_index];
+		if (scroll) scrollTo(scroll.x, scroll.y);
+
+		this.hash_navigating = false;
+
 		this.callbacks = {
 			/** @type {Array<({ from, to, cancel }: { from: URL, to: URL | null, cancel: () => void }) => void>} */
 			before_navigate: [],
@@ -72,9 +96,7 @@ export class Router {
 	}
 
 	init_listeners() {
-		if ('scrollRestoration' in history) {
-			history.scrollRestoration = 'manual';
-		}
+		history.scrollRestoration = 'manual';
 
 		// Adopted from Nuxt.js
 		// Reset scrollRestoration to auto when leaving page, allowing page reload
@@ -99,28 +121,16 @@ export class Router {
 			}
 		});
 
-		// Setting scrollRestoration to manual again when returning to this page.
-		addEventListener('load', () => {
-			history.scrollRestoration = 'manual';
-		});
+		addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'hidden') {
+				this.#update_scroll_positions();
 
-		// There's no API to capture the scroll location right before the user
-		// hits the back/forward button, so we listen for scroll events
-
-		/** @type {NodeJS.Timeout} */
-		let scroll_timer;
-		addEventListener('scroll', () => {
-			clearTimeout(scroll_timer);
-			scroll_timer = setTimeout(() => {
-				// Store the scroll location in the history
-				// This will persist even if we navigate away from the site and come back
-				const new_state = {
-					...(history.state || {}),
-					'sveltekit:scroll': scroll_state()
-				};
-				history.replaceState(new_state, document.title, window.location.href);
-				// iOS scroll event intervals happen between 30-150ms, sometimes around 200ms
-			}, 200);
+				try {
+					sessionStorage[SCROLL_KEY] = JSON.stringify(scroll_positions);
+				} catch {
+					// do nothing
+				}
+			}
 		});
 
 		/** @param {Event} event */
@@ -189,13 +199,13 @@ export class Router {
 			// Removing the hash does a full page navigation in the browser, so make sure a hash is present
 			const [base, hash] = url.href.split('#');
 			if (hash !== undefined && base === location.href.split('#')[0]) {
-				// Call `pushState` to add url to history so going back works.
-				// Also make a delay, otherwise the browser default behaviour would not kick in
-				setTimeout(() => history.pushState({}, '', url.href));
-				const info = this.parse(url);
-				if (info) {
-					return this.renderer.update(info, [], false);
-				}
+				// set this flag to distinguish between navigations triggered by
+				// clicking a hash link and those triggered by popstate
+				this.hash_navigating = true;
+
+				this.#update_scroll_positions();
+				this.renderer.update_page_store(new URL(url.href));
+
 				return;
 			}
 
@@ -221,7 +231,7 @@ export class Router {
 
 				this._navigate({
 					url: new URL(location.href),
-					scroll: event.state['sveltekit:scroll'],
+					scroll: scroll_positions[event.state['sveltekit:index']],
 					keepfocus: false,
 					chain: [],
 					details: null,
@@ -235,6 +245,25 @@ export class Router {
 				});
 			}
 		});
+
+		addEventListener('hashchange', () => {
+			// if the hashchange happened as a result of clicking on a link,
+			// we need to update history, otherwise we have to leave it alone
+			if (this.hash_navigating) {
+				this.hash_navigating = false;
+				history.replaceState(
+					{ ...history.state, 'sveltekit:index': ++this.current_history_index },
+					'',
+					location.href
+				);
+			}
+		});
+
+		this.initialized = true;
+	}
+
+	#update_scroll_positions() {
+		scroll_positions[this.current_history_index] = scroll_state();
 	}
 
 	/**
@@ -257,7 +286,8 @@ export class Router {
 				id: url.pathname + url.search,
 				routes: this.routes.filter(([pattern]) => pattern.test(path)),
 				url,
-				path
+				path,
+				initial: !this.initialized
 			};
 		}
 	}
@@ -307,7 +337,7 @@ export class Router {
 
 	/**
 	 * @param {URL} url
-	 * @returns {Promise<import('./types').NavigationResult>}
+	 * @returns {Promise<import('./types').NavigationResult | undefined>}
 	 */
 	async prefetch(url) {
 		const info = this.parse(url);
@@ -384,6 +414,8 @@ export class Router {
 			});
 		}
 
+		this.#update_scroll_positions();
+
 		accepted();
 
 		if (!this.navigating) {
@@ -391,14 +423,7 @@ export class Router {
 		}
 		this.navigating++;
 
-		let { pathname } = url;
-
-		if (this.trailing_slash === 'never') {
-			if (pathname !== '/' && pathname.endsWith('/')) pathname = pathname.slice(0, -1);
-		} else if (this.trailing_slash === 'always') {
-			const is_file = /** @type {string} */ (url.pathname.split('/').pop()).includes('.');
-			if (!is_file && !pathname.endsWith('/')) pathname += '/';
-		}
+		const pathname = normalize_path(url.pathname, this.trailing_slash);
 
 		info.url = new URL(url.origin + pathname + url.search + url.hash);
 
