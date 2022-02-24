@@ -6,7 +6,8 @@ import 'prismjs/components/prism-diff.js';
 import 'prismjs/components/prism-typescript.js';
 import 'prism-svelte';
 import { extract_frontmatter, transform } from './markdown';
-import { types } from '../../../../../../documentation/types.js';
+import { modules } from '../../../../../../documentation/types.js';
+import { render_modules } from './modules';
 
 const languages = {
 	bash: 'bash',
@@ -23,11 +24,24 @@ const languages = {
 const base = '../../documentation';
 
 const type_regex = new RegExp(
-	`(import\\(&apos;@sveltejs\\/kit&apos;\\)\\.)?\\b(${types
+	`(import\\(&apos;@sveltejs\\/kit&apos;\\)\\.)?\\b(${modules
+		.map((module) => module.types)
+		.flat()
 		.map((type) => type.name)
 		.join('|')})\\b`,
 	'g'
 );
+
+const type_links = new Map();
+
+modules.forEach((module) => {
+	const slug = slugify(module.name);
+
+	module.types.forEach((type) => {
+		const link = `/docs/types#${slug}-${slugify(type.name)}`;
+		type_links.set(type.name, link);
+	});
+});
 
 /**
  * @param {string} dir
@@ -39,11 +53,10 @@ export async function read_file(dir, file) {
 
 	const slug = match[1];
 
-	const markdown = fs.readFileSync(`${base}/${dir}/${file}`, 'utf-8').replace('**TYPES**', () => {
-		return types
-			.map((type) => `#### ${type.name}\n\n${type.comment}\n\n\`\`\`ts\n${type.snippet}\n\`\`\``)
-			.join('\n\n');
-	});
+	const markdown = fs
+		.readFileSync(`${base}/${dir}/${file}`, 'utf-8')
+		.replace('**TYPES**', () => render_modules('types'))
+		.replace('**EXPORTS**', () => render_modules('exports'));
 
 	const highlighter = await createShikiHighlighter({ theme: 'css-variables' });
 
@@ -72,7 +85,8 @@ export async function read_file(dir, file) {
 						tabs += '  ';
 					}
 					return prefix + tabs;
-				});
+				})
+				.replace(/\*\\\//g, '*/');
 
 			if (language === 'js') {
 				const twoslash = runTwoSlash(source, language, {
@@ -84,6 +98,12 @@ export async function read_file(dir, file) {
 				});
 
 				html = renderCodeToHTML(twoslash.code, 'ts', { twoslash: true }, {}, highlighter, twoslash);
+
+				// we need to be able to inject the LSP attributes as HTML, not text, so we
+				// turn &lt; into &amp;lt;
+				html = html.replace(/<data-lsp lsp='(.+?)' *>(\w+)<\/data-lsp>/g, (match, lsp, name) => {
+					return `<data-lsp lsp='${lsp.replace(/&/g, '&amp;')}'>${name}</data-lsp>`;
+				});
 
 				// preserve blank lines in output (maybe there's a more correct way to do this?)
 				html = `<div class="code-block">${file ? `<h5>${file}</h5>` : ''}${html.replace(
@@ -124,13 +144,13 @@ export async function read_file(dir, file) {
 			type_regex.lastIndex = 0;
 
 			return html
-				.replace(type_regex, (match, prefix, content) => {
-					if (content === current) {
+				.replace(type_regex, (match, prefix, name) => {
+					if (name === current) {
 						// we don't want e.g. RequestHandler to link to RequestHandler
 						return match;
 					}
 
-					const link = `<a href="/docs/types#sveltejs-kit-${slugify(content)}">${content}</a>`;
+					const link = `<a href="${type_links.get(name)}">${name}</a>`;
 					return `${prefix || ''}${link}`;
 				})
 				.replace(
@@ -210,9 +230,8 @@ export function read_headings(dir) {
 
 			const markdown = fs
 				.readFileSync(`${base}/${dir}/${file}`, 'utf-8')
-				.replace('**TYPES**', () => {
-					return types.map((type) => `#### ${type.name}`).join('\n\n');
-				});
+				.replace('**TYPES**', () => render_modules('types'))
+				.replace('**EXPORTS**', () => render_modules('exports'));
 
 			const { body, metadata } = extract_frontmatter(markdown);
 
