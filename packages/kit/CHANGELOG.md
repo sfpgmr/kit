@@ -1,5 +1,29 @@
 # @sveltejs/kit
 
+## 1.0.0-next.291
+
+### Patch Changes
+
+- Focus on `body` instead of `html` on navigation due to issues on Firefox ([#4184](https://github.com/sveltejs/kit/pull/4184))
+
+## 1.0.0-next.290
+
+### Patch Changes
+
+- Add config.kit.outDir ([#4176](https://github.com/sveltejs/kit/pull/4176))
+
+* [breaking] allow `InputProps` and `OutputProps` to be typed separately in `Load` ([#4160](https://github.com/sveltejs/kit/pull/4160))
+
+## 1.0.0-next.289
+
+### Patch Changes
+
+- Only fall back to full page reload if pathname has changed ([#4116](https://github.com/sveltejs/kit/pull/4116))
+
+* Generate types for each page/endpoint ([#4120](https://github.com/sveltejs/kit/pull/4120))
+
+- Extend user tsconfig from generated .svelte-kit/tsconfig.json ([#4118](https://github.com/sveltejs/kit/pull/4118))
+
 ## 1.0.0-next.288
 
 ### Patch Changes
