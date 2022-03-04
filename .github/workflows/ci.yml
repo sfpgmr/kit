@@ -27,12 +27,12 @@ jobs:
       - run: pnpm check
   Tests:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         node-version: [14]
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest, macOS-latest, windows-2019]
         include:
           - node-version: 16
             os: ubuntu-latest

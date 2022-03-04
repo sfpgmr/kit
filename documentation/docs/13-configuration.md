@@ -29,6 +29,7 @@ const config = {
 				// ...
 			}
 		},
+		endpointExtensions: ['.js', '.ts'],
 		files: {
 			assets: 'static',
 			hooks: 'src/hooks',
@@ -135,6 +136,10 @@ When pages are prerendered, the CSP header is added via a `<meta http-equiv>` ta
 
 > When `mode` is `'auto'`, SvelteKit will use nonces for dynamically rendered pages and hashes for prerendered pages. Using nonces with prerendered pages is insecure and therefore forbidden.
 
+### endpointExtensions
+
+An array of file extensions that SvelteKit will treat as endpoints. Files with extensions that match neither `config.extensions` nor `config.kit.endpointExtensions` will be ignored by the router.
+
 ### files
 
 An object containing zero or more of the following `string` values:
@@ -224,6 +229,7 @@ See [Prerendering](/docs/page-options#prerender). An object containing zero or m
 
 - `concurrency` — how many pages can be prerendered simultaneously. JS is single-threaded, but in cases where prerendering performance is network-bound (for example loading content from a remote CMS) this can speed things up by processing other tasks while waiting on the network response
 - `crawl` — determines whether SvelteKit should find pages to prerender by following links from the seed page(s)
+- `default` — set to `true` to prerender every page without `export const prerender = false`
 - `enabled` — set to `false` to disable prerendering altogether
 - `entries` — an array of pages to prerender, or start crawling from (if `crawl: true`). The `*` string includes all non-dynamic routes (i.e. pages with no `[parameters]` )
 - `onError`

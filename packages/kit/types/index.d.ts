@@ -41,6 +41,7 @@ export interface Config {
 			mode?: 'hash' | 'nonce' | 'auto';
 			directives?: CspDirectives;
 		};
+		endpointExtensions?: string[];
 		files?: {
 			assets?: string;
 			hooks?: string;
@@ -69,6 +70,7 @@ export interface Config {
 		prerender?: {
 			concurrency?: number;
 			crawl?: boolean;
+			default?: boolean;
 			enabled?: boolean;
 			entries?: string[];
 			onError?: PrerenderOnErrorValue;
@@ -145,7 +147,7 @@ export interface Page<Params extends Record<string, string> = Record<string, str
  * that method. Note that since 'delete' is a reserved word in
  * JavaScript, delete handles are called `del` instead.
  *
- * Note that you can use [generated types](/docs/types#generated)
+ * Note that you can use [generated types](/docs/types#generated-types)
  * instead of manually specifying the `Params` generic argument.
  */
 export interface RequestHandler<Params = Record<string, string>, Output extends Body = Body> {
