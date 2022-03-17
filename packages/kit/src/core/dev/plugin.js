@@ -12,6 +12,7 @@ import { coalesce_to_error } from '../../utils/error.js';
 import { load_template } from '../config/index.js';
 import { sequence } from '../../hooks.js';
 import { posixify } from '../../utils/filesystem.js';
+import { parse_route_id } from '../../utils/routing.js';
 
 /**
  * @param {import('types').ValidatedConfig} config
@@ -104,12 +105,15 @@ export async function create_plugin(config, cwd) {
 							};
 						}),
 						routes: manifest_data.routes.map((route) => {
+							const { pattern, names, types } = parse_route_id(route.id);
+
 							if (route.type === 'page') {
 								return {
 									type: 'page',
-									key: route.key,
-									pattern: route.pattern,
-									params: get_params(route.params),
+									id: route.id,
+									pattern,
+									names,
+									types,
 									shadow: route.shadow
 										? async () => {
 												const url = path.resolve(cwd, /** @type {string} */ (route.shadow));
@@ -123,14 +127,34 @@ export async function create_plugin(config, cwd) {
 
 							return {
 								type: 'endpoint',
-								pattern: route.pattern,
-								params: get_params(route.params),
+								id: route.id,
+								pattern,
+								names,
+								types,
 								load: async () => {
 									const url = path.resolve(cwd, route.file);
 									return await vite.ssrLoadModule(url);
 								}
 							};
-						})
+						}),
+						matchers: async () => {
+							/** @type {Record<string, import('types').ParamMatcher>} */
+							const matchers = {};
+
+							for (const key in manifest_data.matchers) {
+								const file = manifest_data.matchers[key];
+								const url = path.resolve(cwd, file);
+								const module = await vite.ssrLoadModule(url);
+
+								if (module.match) {
+									matchers[key] = module.match;
+								} else {
+									throw new Error(`${file} does not export a \`match\` function`);
+								}
+							}
+
+							return matchers;
+						}
 					}
 				};
 			}
@@ -341,29 +365,6 @@ export async function create_plugin(config, cwd) {
 			};
 		}
 	};
-}
-
-/** @param {string[]} array */
-function get_params(array) {
-	// given an array of params like `['x', 'y', 'z']` for
-	// src/routes/[x]/[y]/[z]/svelte, create a function
-	// that turns a RegExpExecArray into ({ x, y, z })
-
-	/** @param {RegExpExecArray} match */
-	const fn = (match) => {
-		/** @type {Record<string, string>} */
-		const params = {};
-		array.forEach((key, i) => {
-			if (key.startsWith('...')) {
-				params[key.slice(3)] = match[i + 1] || '';
-			} else {
-				params[key] = match[i + 1];
-			}
-		});
-		return params;
-	};
-
-	return fn;
 }
 
 /** @param {import('http').ServerResponse} res */
