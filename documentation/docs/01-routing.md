@@ -92,8 +92,6 @@ The job of a [request handler](/docs/types#sveltejs-kit-requesthandler) is to re
 - `4xx` — client error
 - `5xx` — server error
 
-> If `{fallthrough: true}` is returned SvelteKit will [fall through](/docs/routing#advanced-routing-fallthrough-routes) to other routes until something responds, or will respond with a generic 404.
-
 #### Page endpoints
 
 If an endpoint has the same filename as a page (except for the extension), the page gets its props from the endpoint — via `fetch` during client-side navigation, or via direct function call during SSR.
@@ -354,7 +352,7 @@ SvelteKit needs to know which route is being requested. To do so, it sorts them 
 
 - More specific routes are higher priority
 - Standalone endpoints have higher priority than pages with the same specificity
-- Parameters with [validators](#validation) (`[name=type]`) are higher priority than those without (`[name]`)
+- Parameters with [matchers](#advanced-routing-matching) (`[name=type]`) are higher priority than those without (`[name]`)
 - Rest parameters have lowest priority
 - Ties are resolved alphabetically
 
