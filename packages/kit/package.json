@@ -1,6 +1,6 @@
 {
 	"name": "@sveltejs/kit",
-	"version": "1.0.0-next.303",
+	"version": "1.0.0-next.304",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
@@ -10,6 +10,7 @@
 	"homepage": "https://kit.svelte.dev",
 	"type": "module",
 	"dependencies": {
+<<<<<<< HEAD
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@rollup/plugin-node-resolve": "^13.1.3",
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.36",
@@ -18,6 +19,11 @@
 		"formdata-polyfill": "^4.0.10",
 		"sade": "^1.8.1",
 		"vite": "^2.7.13"
+=======
+		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.32",
+		"sade": "^1.7.4",
+		"vite": "^2.9.0"
+>>>>>>> upstream/master
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.19.1",
