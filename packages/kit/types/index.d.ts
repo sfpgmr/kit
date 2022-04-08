@@ -184,7 +184,7 @@ export interface HandleError {
 }
 
 /**
- * The type of a `load` function exported from `<script context="module">` in a page or layout.
+ * The `(input: LoadInput) => LoadOutput` `load` function exported from `<script context="module">` in a page or layout.
  *
  * Note that you can use [generated types](/docs/types#generated-types) instead of manually specifying the Params generic argument.
  */
@@ -223,14 +223,14 @@ export interface RequestHandler<
 	Params extends Record<string, string> = Record<string, string>,
 	Output extends ResponseBody = ResponseBody
 > {
-	(event: RequestEvent<Params>): RequestHandlerOutput<Output>;
+	(event: RequestEvent<Params>): MaybePromise<RequestHandlerOutput<Output>>;
 }
 
-export type RequestHandlerOutput<Output extends ResponseBody = ResponseBody> = MaybePromise<{
+export interface RequestHandlerOutput<Output extends ResponseBody = ResponseBody> {
 	status?: number;
 	headers?: Headers | Partial<ResponseHeaders>;
 	body?: Output;
-}>;
+}
 
 export type ResponseBody = JSONValue | Uint8Array | ReadableStream | import('stream').Readable;
 
