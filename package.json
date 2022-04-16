@@ -29,7 +29,6 @@
 		"@rollup/plugin-node-resolve": "^13.1.3",
 		"@sveltejs/eslint-config": "github:sveltejs/eslint-config#v5.8.0",
 		"@svitejs/changesets-changelog-github-compact": "^0.1.1",
-<<<<<<< HEAD
 		"@typescript-eslint/eslint-plugin": "^5.17.0",
 		"@typescript-eslint/parser": "^5.17.0",
 		"action-deploy-docs": "github:sveltejs/action-deploy-docs#main",
@@ -40,17 +39,6 @@
 		"prettier": "^2.6.2",
 		"rollup": "^2.70.1",
 		"typescript": "~4.6.3"
-=======
-		"@typescript-eslint/eslint-plugin": "^5.5.0",
-		"@typescript-eslint/parser": "^5.5.0",
-		"eslint": "^8.3.0",
-		"eslint-plugin-import": "^2.25.3",
-		"eslint-plugin-svelte3": "^3.2.1",
-		"prettier": "^2.5.0",
-		"rollup": "^2.60.2",
-		"turbo": "^1.2.3",
-		"typescript": "~4.6.2"
->>>>>>> upstream/master
 	},
 	"type": "module",
 	"dependencies": {
