@@ -1,5 +1,33 @@
 # @sveltejs/kit
 
+## 1.0.0-next.314
+
+### Patch Changes
+
+- Custom `load` `dependencies` in `LoadOutput` ([#4536](https://github.com/sveltejs/kit/pull/4536))
+
+* Made LoadInput and LoadOutput types public, merged ErrorLoad and Load declarations ([#4515](https://github.com/sveltejs/kit/pull/4515))
+
+## 1.0.0-next.313
+
+### Patch Changes
+
+- add `platform` to requests triggered by `fetch` in `load` during SSR ([#4599](https://github.com/sveltejs/kit/pull/4599))
+
+## 1.0.0-next.312
+
+### Patch Changes
+
+- Only render fallback when prerendering is enabled ([#4604](https://github.com/sveltejs/kit/pull/4604))
+
+## 1.0.0-next.311
+
+### Patch Changes
+
+- Skip client-side navigation for links with sveltekit:reload ([#4545](https://github.com/sveltejs/kit/pull/4545))
+
+* [breaking] Skip prerendering for rel="external" links ([#4545](https://github.com/sveltejs/kit/pull/4545))
+
 ## 1.0.0-next.310
 
 ### Patch Changes
