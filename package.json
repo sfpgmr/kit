@@ -42,6 +42,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"data-uri-to-buffer": "^4.0.0"
+		"cookie": "^0.5.0",
+		"data-uri-to-buffer": "^4.0.0",
+		"set-cookie-parser": "^2.4.8"
 	}
 }
