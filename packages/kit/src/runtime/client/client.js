@@ -61,8 +61,8 @@ export function create_client({ target, session, base, trailing_slash }) {
 	/** @type {Map<string, import('./types').NavigationResult>} */
 	const cache = new Map();
 
-	/** @type {Set<string>} */
-	const invalidated = new Set();
+	/** @type {Array<((href: string) => boolean)>} */
+	const invalidated = [];
 
 	const stores = {
 		url: notifiable_store({}),
@@ -127,17 +127,28 @@ export function create_client({ target, session, base, trailing_slash }) {
 	let router_enabled = true;
 
 	// keeping track of the history index in order to prevent popstate navigation events if needed
-	let current_history_index = history.state?.[INDEX_KEY] ?? 0;
+	let current_history_index = history.state?.[INDEX_KEY];
 
-	if (current_history_index === 0) {
+	if (!current_history_index) {
+		// we use Date.now() as an offset so that cross-document navigations
+		// within the app don't result in data loss
+		current_history_index = Date.now();
+
 		// create initial history entry, so we can return here
-		history.replaceState({ ...history.state, [INDEX_KEY]: 0 }, '', location.href);
+		history.replaceState(
+			{ ...history.state, [INDEX_KEY]: current_history_index },
+			'',
+			location.href
+		);
 	}
 
 	// if we reload the page, or Cmd-Shift-T back to it,
 	// recover scroll position
 	const scroll = scroll_positions[current_history_index];
-	if (scroll) scrollTo(scroll.x, scroll.y);
+	if (scroll) {
+		history.scrollRestoration = 'manual';
+		scrollTo(scroll.x, scroll.y);
+	}
 
 	let hash_navigating = false;
 
@@ -232,7 +243,7 @@ export function create_client({ target, session, base, trailing_slash }) {
 		// abort if user navigated during update
 		if (token !== current_token) return;
 
-		invalidated.clear();
+		invalidated.length = 0;
 
 		if (navigation_result.redirect) {
 			if (redirect_chain.length > 10 || redirect_chain.includes(url.pathname)) {
@@ -341,7 +352,7 @@ export function create_client({ target, session, base, trailing_slash }) {
 	function initialize(result) {
 		current = result.state;
 
-		const style = document.querySelector('style[data-svelte]');
+		const style = document.querySelector('style[data-sveltekit]');
 		if (style) style.remove();
 
 		page = result.props.page;
@@ -623,7 +634,7 @@ export function create_client({ target, session, base, trailing_slash }) {
 					(changed.url && previous.uses.url) ||
 					changed.params.some((param) => previous.uses.params.has(param)) ||
 					(changed.session && previous.uses.session) ||
-					Array.from(previous.uses.dependencies).some((dep) => invalidated.has(dep)) ||
+					Array.from(previous.uses.dependencies).some((dep) => invalidated.some((fn) => fn(dep))) ||
 					(stuff_changed && previous.uses.stuff);
 
 				if (changed_since_last_render) {
@@ -964,9 +975,12 @@ export function create_client({ target, session, base, trailing_slash }) {
 		goto: (href, opts = {}) => goto(href, opts, []),
 
 		invalidate: (resource) => {
-			const { href } = new URL(resource, location.href);
-
-			invalidated.add(href);
+			if (typeof resource === 'function') {
+				invalidated.push(resource);
+			} else {
+				const { href } = new URL(resource, location.href);
+				invalidated.push((dep) => dep === href);
+			}
 
 			if (!invalidating) {
 				invalidating = Promise.resolve().then(async () => {

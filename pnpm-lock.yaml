@@ -167,13 +167,16 @@ importers:
   packages/adapter-static:
     specifiers:
       '@sveltejs/kit': workspace:*
-      cookie: ^0.5.0
-      devalue: ^2.0.1
       playwright-chromium: ^1.21.0
       port-authority: ^1.1.2
+<<<<<<< HEAD
       set-cookie-parser: ^2.4.8
       sirv: ^2.0.2
       svelte: ^3.46.3
+=======
+      sirv: ^2.0.0
+      svelte: ^3.44.2
+>>>>>>> upstream/master
       tiny-glob: ^0.2.9
       typescript: ^4.6.2
       uvu: ^0.5.2
@@ -181,13 +184,16 @@ importers:
       tiny-glob: 0.2.9
     devDependencies:
       '@sveltejs/kit': link:../kit
-      cookie: 0.5.0
-      devalue: 2.0.1
       playwright-chromium: 1.21.0
       port-authority: 1.1.2
+<<<<<<< HEAD
       set-cookie-parser: 2.4.8
       sirv: 2.0.2
       svelte: 3.46.6
+=======
+      sirv: 2.0.0
+      svelte: 3.44.2
+>>>>>>> upstream/master
       typescript: 4.6.2
       uvu: 0.5.2
 
@@ -442,7 +448,6 @@ importers:
       '@sveltejs/kit': workspace:*
       '@sveltejs/site-kit': ^2.1.0
       '@types/node': ^16.11.11
-      devalue: ^2.0.1
       flexsearch: ^0.7.21
       marked: ^4.0.5
       prism-svelte: ^0.5.0
@@ -458,7 +463,6 @@ importers:
       '@sveltejs/kit': link:../../packages/kit
       '@sveltejs/site-kit': 2.1.0
       '@types/node': 16.11.11
-      devalue: 2.0.1
       flexsearch: 0.7.21
       marked: 4.0.5
       prism-svelte: 0.5.0
