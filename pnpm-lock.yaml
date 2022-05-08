@@ -20,6 +20,7 @@ importers:
       eslint-plugin-import: ^2.26.0
       eslint-plugin-node: ^11.1.0
       eslint-plugin-svelte3: ^3.4.1
+      marked: ^4.0.15
       rollup: ^2.72.0
       set-cookie-parser: ^2.4.8
       svelte: ^3.48.0
@@ -28,6 +29,7 @@ importers:
       cookie: 0.5.0
       data-uri-to-buffer: 4.0.0
       eslint-plugin-node: 11.1.0_eslint@8.15.0
+      marked: 4.0.15
       set-cookie-parser: 2.4.8
       svelte: 3.48.0
     devDependencies:
@@ -4882,7 +4884,6 @@ packages:
     resolution: {integrity: sha512-esX5lPdTfG4p8LDkv+obbRCyOKzB+820ZZyMOXJZygZBHrH9b3xXR64X4kT3sPe9Nx8qQXbmcz6kFSMt4Nfk6Q==}
     engines: {node: '>= 12'}
     hasBin: true
-    dev: true
 
   /marked/4.0.5:
     resolution: {integrity: sha512-eUToMA5d5lunnipkCN7zFD0RiunCF2Uo6bImEt/Qx8LZMW7oPXTw7R+f+M5V3eS7164HjEDPfW8/TrefuFhDfw==}
