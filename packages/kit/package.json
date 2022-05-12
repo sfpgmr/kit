@@ -1,6 +1,10 @@
 {
 	"name": "@sveltejs/kit",
+<<<<<<< HEAD
 	"version": "1.0.0-next.327",
+=======
+	"version": "1.0.0-next.328",
+>>>>>>> upstream/master
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
