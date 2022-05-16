@@ -33,7 +33,6 @@ importers:
       marked: 4.0.15
       set-cookie-parser: 2.4.8
     devDependencies:
-<<<<<<< HEAD
       '@changesets/cli': 2.22.0
       '@changesets/get-github-info': 0.5.0
       '@rollup/plugin-commonjs': 21.1.0_rollup@2.72.0
@@ -48,22 +47,6 @@ importers:
       eslint-plugin-svelte3: 4.0.0_usjo443ynfgvutifl4ot2fkxzy
       prettier: 2.6.2
       rollup: 2.72.0
-=======
-      '@changesets/cli': 2.18.1
-      '@rollup/plugin-commonjs': 21.0.1_rollup@2.60.2
-      '@rollup/plugin-json': 4.1.0_rollup@2.60.2
-      '@rollup/plugin-node-resolve': 13.0.6_rollup@2.60.2
-      '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/9a7d728e03ac433e5856a6e06775c17ee986d641_joccrsvn3w5bf3zq72tg6cmv5a
-      '@svitejs/changesets-changelog-github-compact': 0.1.1
-      '@typescript-eslint/eslint-plugin': 5.5.0_hgifpugu3iz4vjez2nvxzb2flm
-      '@typescript-eslint/parser': 5.5.0_wxzcy32mnlkffm57qz2iyynkxq
-      eslint: 8.3.0
-      eslint-plugin-import: 2.25.3_iplecdnqcsfvmje2lfr4noy2lm
-      eslint-plugin-node: 11.1.0_eslint@8.3.0
-      eslint-plugin-svelte3: 4.0.0_eslint@8.3.0+svelte@3.48.0
-      prettier: 2.5.0
-      rollup: 2.60.2
->>>>>>> upstream/master
       svelte: 3.48.0
       turbo: 1.2.9
       typescript: 4.6.4
