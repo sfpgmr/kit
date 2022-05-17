@@ -2,8 +2,17 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
+=======
+## 1.0.0-next.334
+
+### Patch Changes
+
+- [fix] deduplicate injected css during dev ([#4920](https://github.com/sveltejs/kit/pull/4920))
+
+>>>>>>> upstream/master
 ## 1.0.0-next.333
 
 ### Patch Changes
