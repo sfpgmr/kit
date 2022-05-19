@@ -1,5 +1,25 @@
 # @sveltejs/kit
 
+## 1.0.0-next.336
+
+### Patch Changes
+
+- Pass config to vite-plugin-svelte instead of reloading it ([#4760](https://github.com/sveltejs/kit/pull/4760))
+
+* fix FOUC regression during dev ([#4990](https://github.com/sveltejs/kit/pull/4990))
+
+- move `RequestEvent` and `ResolveOptions` as public types ([#4809](https://github.com/sveltejs/kit/pull/4809))
+
+* [breaking] write generated types to `__types` directories ([#4705](https://github.com/sveltejs/kit/pull/4705))
+
+## 1.0.0-next.335
+
+### Patch Changes
+
+- [breaking] change data-hydrate to data-sveltekit-hydrate ([#4972](https://github.com/sveltejs/kit/pull/4972))
+
+* Fix default port override ([#4970](https://github.com/sveltejs/kit/pull/4970))
+
 ## 1.0.0-next.334
 
 ### Patch Changes
