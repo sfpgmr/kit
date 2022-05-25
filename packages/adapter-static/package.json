@@ -29,18 +29,6 @@
 		"tiny-glob": "^0.2.9"
 	},
 	"devDependencies": {
-<<<<<<< HEAD
-		"@sveltejs/kit": "workspace:*",
-		"@types/node": "^14.14.20",
-		"playwright-chromium": "^1.21.0",
-		"port-authority": "^1.1.2",
-		"sirv": "^2.0.2",
-		"svelte": "^3.46.3",
-		"set-cookie-parser": "^2.4.8",
-		"typescript": "^4.6.2",
-		"uvu": "^0.5.2"
-=======
 		"@sveltejs/kit": "workspace:*"
->>>>>>> upstream/master
 	}
 }
