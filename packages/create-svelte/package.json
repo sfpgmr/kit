@@ -20,16 +20,7 @@
 		"@types/prettier": "^2.4.3",
 		"@types/prompts": "^2.0.14",
 		"gitignore-parser": "^0.0.2",
-<<<<<<< HEAD
-		"prettier": "^2.5.1",
-		"prettier-plugin-svelte": "^2.6.0",
-		"sucrase": "^3.20.3",
-		"svelte": "^3.46.3",
-		"svelte-preprocess": "^4.10.2",
-		"tiny-glob": "^0.2.9"
-=======
 		"sucrase": "^3.20.3"
->>>>>>> upstream/master
 	},
 	"scripts": {
 		"build": "node scripts/build-templates",
