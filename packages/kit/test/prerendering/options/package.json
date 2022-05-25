@@ -10,12 +10,16 @@
 		"test": "npm run build && uvu test"
 	},
 	"devDependencies": {
+<<<<<<< HEAD
 		"@sveltejs/kit": "workspace:*",
 		"svelte": "^3.46.3",
 		"uvu": "^0.5.3",
 		"typescript": "~4.6.2",
 		"svelte-check": "^2.5.0",
 		"uvu": "^0.5.2"
+=======
+		"@sveltejs/kit": "workspace:*"
+>>>>>>> upstream/master
 	},
 	"type": "module"
 }

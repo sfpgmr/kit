@@ -3,14 +3,13 @@ import path from 'path';
 import { URL } from 'url';
 import colors from 'kleur';
 import sirv from 'sirv';
-import { installFetch } from '../../install-fetch.js';
+import { installPolyfills } from '../../node/polyfills.js';
 import * as sync from '../sync/sync.js';
-import { getRequest, setResponse } from '../../node.js';
+import { getRequest, setResponse } from '../../node/index.js';
 import { SVELTE_KIT_ASSETS } from '../constants.js';
 import { get_mime_lookup, get_runtime_path, resolve_entry } from '../utils.js';
 import { coalesce_to_error } from '../../utils/error.js';
 import { load_template } from '../config/index.js';
-import { sequence } from '../../hooks.js';
 import { posixify } from '../../utils/filesystem.js';
 import { parse_route_id } from '../../utils/routing.js';
 
@@ -18,32 +17,27 @@ import { parse_route_id } from '../../utils/routing.js';
 // https://github.com/vitejs/vite/blob/3edd1af56e980aef56641a5a51cf2932bb580d41/packages/vite/src/node/plugins/css.ts#L96
 const style_pattern = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)$/;
 
+const cwd = process.cwd();
+
 /**
  * @param {import('types').ValidatedConfig} config
- * @param {string} cwd
  * @returns {Promise<import('vite').Plugin>}
  */
-export async function create_plugin(config, cwd) {
-	const runtime = get_runtime_path(config);
-
-	/** @type {import('types').Handle} */
-	let amp;
-
-	if (config.kit.amp) {
-		process.env.VITE_SVELTEKIT_AMP = 'true';
-		amp = (await import('./amp_hook.js')).handle;
-	}
-
-	process.env.VITE_SVELTEKIT_APP_VERSION_POLL_INTERVAL = '0';
-
-	/** @type {import('types').Respond} */
-	const respond = (await import(`${runtime}/server/index.js`)).respond;
-
+export async function create_plugin(config) {
 	return {
 		name: 'vite-plugin-svelte-kit',
 
-		configureServer(vite) {
-			installFetch();
+		async configureServer(vite) {
+			installPolyfills();
+
+			sync.init(config);
+
+			const runtime = get_runtime_path(config);
+
+			process.env.VITE_SVELTEKIT_APP_VERSION_POLL_INTERVAL = '0';
+
+			/** @type {import('types').Respond} */
+			const respond = (await import(`${runtime}/server/index.js`)).respond;
 
 			/** @type {import('types').SSRManifest} */
 			let manifest;
@@ -169,8 +163,13 @@ export async function create_plugin(config, cwd) {
 
 			update_manifest();
 
-			vite.watcher.on('add', update_manifest);
-			vite.watcher.on('unlink', update_manifest);
+			for (const event of ['add', 'unlink']) {
+				vite.watcher.on(event, (file) => {
+					if (file.startsWith(config.kit.files.routes + path.sep)) {
+						update_manifest();
+					}
+				});
+			}
 
 			const assets = config.kit.paths.assets ? SVELTE_KIT_ASSETS : config.kit.paths.base;
 			const asset_server = sirv(config.kit.files.assets, {
@@ -181,6 +180,11 @@ export async function create_plugin(config, cwd) {
 			});
 
 			return () => {
+				const serve_static_middleware = vite.middlewares.stack.find(
+					(middleware) =>
+						/** @type {function} */ (middleware.handle).name === 'viteServeStaticMiddleware'
+				);
+
 				remove_html_middlewares(vite.middlewares);
 
 				vite.middlewares.use(async (req, res) => {
@@ -198,13 +202,15 @@ export async function create_plugin(config, cwd) {
 							const file = config.kit.files.assets + pathname;
 
 							if (fs.existsSync(file) && !fs.statSync(file).isDirectory()) {
-								req.url = encodeURI(pathname); // don't need query/hash
-								asset_server(req, res);
-								return;
+								const has_correct_case = fs.realpathSync.native(file) === path.resolve(file);
+
+								if (has_correct_case) {
+									req.url = encodeURI(pathname); // don't need query/hash
+									asset_server(req, res);
+									return;
+								}
 							}
 						}
-
-						if (req.url === '/favicon.ico') return not_found(res);
 
 						if (!decoded.startsWith(config.kit.paths.base)) {
 							return not_found(res, `Not found (did you mean ${config.kit.paths.base + req.url}?)`);
@@ -220,7 +226,7 @@ export async function create_plugin(config, cwd) {
 						/** @type {import('types').Hooks} */
 						const hooks = {
 							getSession: user_hooks.getSession || (() => ({})),
-							handle: amp ? sequence(amp, handle) : handle,
+							handle,
 							handleError:
 								user_hooks.handleError ||
 								(({ /** @type {Error & { frame?: string }} */ error }) => {
@@ -282,7 +288,6 @@ export async function create_plugin(config, cwd) {
 						const rendered = await respond(
 							request,
 							{
-								amp: config.kit.amp,
 								csp: config.kit.csp,
 								dev: true,
 								floc: config.kit.floc,
@@ -320,21 +325,24 @@ export async function create_plugin(config, cwd) {
 									assets
 								},
 								prefix: '',
-								prerender: config.kit.prerender.enabled,
+								prerender: {
+									default: config.kit.prerender.default,
+									enabled: config.kit.prerender.enabled
+								},
 								read: (file) => fs.readFileSync(path.join(config.kit.files.assets, file)),
 								root,
 								router: config.kit.browser.router,
 								template: ({ head, body, assets, nonce }) => {
 									return (
 										template
-											.replace(/%svelte\.assets%/g, assets)
-											.replace(/%svelte\.nonce%/g, nonce)
-											// head and body must be replaced last, in case someone tries to sneak in %svelte.assets% etc
-											.replace('%svelte.head%', () => head)
-											.replace('%svelte.body%', () => body)
+											.replace(/%sveltekit\.assets%/g, assets)
+											.replace(/%sveltekit\.nonce%/g, nonce)
+											// head and body must be replaced last, in case someone tries to sneak in %sveltekit.assets% etc
+											.replace('%sveltekit.head%', () => head)
+											.replace('%sveltekit.body%', () => body)
 									);
 								},
-								template_contains_nonce: template.includes('%svelte.nonce%'),
+								template_contains_nonce: template.includes('%sveltekit.nonce%'),
 								trailing_slash: config.kit.trailingSlash
 							},
 							{
@@ -346,10 +354,13 @@ export async function create_plugin(config, cwd) {
 							}
 						);
 
-						if (rendered) {
-							setResponse(res, rendered);
+						if (rendered.status === 404) {
+							// @ts-expect-error
+							serve_static_middleware.handle(req, res, () => {
+								setResponse(res, rendered);
+							});
 						} else {
-							not_found(res);
+							setResponse(res, rendered);
 						}
 					} catch (e) {
 						const error = coalesce_to_error(e);
@@ -376,7 +387,8 @@ function remove_html_middlewares(server) {
 	const html_middlewares = [
 		'viteIndexHtmlMiddleware',
 		'vite404Middleware',
-		'viteSpaFallbackMiddleware'
+		'viteSpaFallbackMiddleware',
+		'viteServeStaticMiddleware'
 	];
 	for (let i = server.stack.length - 1; i > 0; i--) {
 		// @ts-expect-error using internals until https://github.com/vitejs/vite/pull/4640 is merged

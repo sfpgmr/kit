@@ -1,6 +1,6 @@
 {
 	"name": "@sveltejs/kit",
-	"version": "1.0.0-next.336",
+	"version": "1.0.0-next.344",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
@@ -12,6 +12,7 @@
 	"dependencies": {
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.44",
 		"chokidar": "^3.5.3",
+<<<<<<< HEAD
 		"data-uri-to-buffer": "^4.0.0",
 		"fetch-blob": "^3.1.5",
 		"formdata-polyfill": "^4.0.10",
@@ -28,11 +29,21 @@
 		"@types/mime": "^2.0.3",
 		"@types/node": "^16.11.33",
 		"@types/sade": "^1.7.4",
+=======
+		"sade": "^1.7.4",
+		"vite": "^2.9.9"
+	},
+	"devDependencies": {
+		"@types/connect": "^3.4.35",
+		"@types/cookie": "^0.5.0",
+		"@types/marked": "^4.0.1",
+		"@types/mime": "^2.0.3",
+		"@types/sade": "^1.7.3",
+>>>>>>> upstream/master
 		"@types/set-cookie-parser": "^2.4.2",
-		"amphtml-validator": "^1.0.35",
 		"cookie": "^0.5.0",
-		"cross-env": "^7.0.3",
 		"devalue": "^2.0.1",
+<<<<<<< HEAD
 		"eslint": "^8.15.0",
 		"kleur": "^4.1.4",
 		"locate-character": "^2.0.5",
@@ -50,6 +61,15 @@
 		"tiny-glob": "^0.2.9",
 		"uvu": "^0.5.3",
 		"typescript": "^4.6.4"
+=======
+		"kleur": "^4.1.4",
+		"locate-character": "^2.0.5",
+		"mime": "^3.0.0",
+		"node-fetch": "^3.1.0",
+		"selfsigned": "^2.0.0",
+		"set-cookie-parser": "^2.4.8",
+		"svelte": "^3.48.0"
+>>>>>>> upstream/master
 	},
 	"peerDependencies": {
 		"svelte": "^3.44.0"
@@ -87,15 +107,15 @@
 		"./node": {
 			"import": "./dist/node.js"
 		},
+		"./node/polyfills": {
+			"import": "./dist/node/polyfills.js"
+		},
 		"./hooks": {
 			"import": "./dist/hooks.js"
-		},
-		"./install-fetch": {
-			"import": "./dist/install-fetch.js"
 		}
 	},
 	"types": "types/index.d.ts",
 	"engines": {
-		"node": ">=16"
+		"node": ">=16.7"
 	}
 }

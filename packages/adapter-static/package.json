@@ -1,6 +1,6 @@
 {
 	"name": "@sveltejs/adapter-static",
-	"version": "1.0.0-next.31",
+	"version": "1.0.0-next.32",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
@@ -12,6 +12,7 @@
 	"main": "index.js",
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"import": "./index.js"
 		},
 		"./package.json": "./package.json"
@@ -28,6 +29,7 @@
 		"tiny-glob": "^0.2.9"
 	},
 	"devDependencies": {
+<<<<<<< HEAD
 		"@sveltejs/kit": "workspace:*",
 		"@types/node": "^14.14.20",
 		"playwright-chromium": "^1.21.0",
@@ -37,5 +39,8 @@
 		"set-cookie-parser": "^2.4.8",
 		"typescript": "^4.6.2",
 		"uvu": "^0.5.2"
+=======
+		"@sveltejs/kit": "workspace:*"
+>>>>>>> upstream/master
 	}
 }

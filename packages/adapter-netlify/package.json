@@ -1,6 +1,6 @@
 {
 	"name": "@sveltejs/adapter-netlify",
-	"version": "1.0.0-next.58",
+	"version": "1.0.0-next.62",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/sveltejs/kit",
@@ -11,6 +11,7 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"import": "./index.js"
 		},
 		"./package.json": "./package.json"
@@ -33,10 +34,12 @@
 	},
 	"dependencies": {
 		"@iarna/toml": "^2.2.5",
-		"esbuild": "^0.14.21",
+		"esbuild": "^0.14.29",
+		"set-cookie-parser": "^2.4.8",
 		"tiny-glob": "^0.2.9"
 	},
 	"devDependencies": {
+<<<<<<< HEAD
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@netlify/functions": "^1.0.0",
 		"@rollup/plugin-json": "^4.1.0",
@@ -47,5 +50,10 @@
 		"rollup": "^2.66.1",
 		"typescript": "^4.6.2",
 		"uvu": "^0.5.2"
+=======
+		"@types/set-cookie-parser": "^2.4.2",
+		"@netlify/functions": "^1.0.0",
+		"@sveltejs/kit": "workspace:*"
+>>>>>>> upstream/master
 	}
 }
